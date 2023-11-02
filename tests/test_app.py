@@ -2,6 +2,9 @@ import uuid
 from unittest import mock
 
 import pytest
+from sqlalchemy import select
+
+from evcs.models import Vehicle
 
 
 def test_root_must_return_200_and_message(client):
@@ -54,3 +57,23 @@ def test_read_status_valid(client, session, charging_status_1):
         'estimated_conclusion': '2023-11-02T10:55:00',
         'vehicle_id': str(charging_status_1.vehicle_id),
     }
+
+
+def test_create_api_resources(client, session):
+    response = client.post(
+        '/create_resources',
+        json={
+            'vehicle_id': '06884e7c-09b6-41a2-9ed8-1d68c46082a8',
+            'charge_point_id': 'c0e6d068-4fd8-4a03-b6de-2e429dcdbfd5',
+            'charging_session_id': '4b56a8b6-9bdc-40c4-96a7-06d9f24a9c66',
+            'battery_capacity': 378,
+            'max_charging_power': 22.97,
+        },
+    )
+    db_vehicle = session.scalar(
+        select(Vehicle).where(
+            Vehicle.id == uuid.UUID('06884e7c-09b6-41a2-9ed8-1d68c46082a8')
+        )
+    )
+    assert response.status_code == 201
+    assert db_vehicle

@@ -51,7 +51,7 @@ async def read_status(charging_id: UUID, session: Session):
     return charging_status
 
 
-@app.post('/add_vehicle')
+@app.post('/create_resources', status_code=status.HTTP_201_CREATED)
 def create_api_resources(session: Session, payload: CreateResource):
     vehicle = Vehicle(
         id=payload.vehicle_id,
