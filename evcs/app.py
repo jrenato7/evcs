@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from evcs.database import get_session
-from evcs.models import ChargingStatus
-from evcs.schemas import ChargingStatusPublic, Message
+from evcs.models import ChargingStatus, Vehicle, ChargePoint, ChargingSession
+from evcs.schemas import ChargingStatusPublic, Message, CreateResource
 from evcs.service import calculate_estimation_charging_conclusion
 from evcs.worker import process_status
 
@@ -49,3 +49,21 @@ async def read_status(charging_id: UUID, session: Session):
     )
 
     return charging_status
+
+
+@app.post('/add_vehicle')
+def create_api_resources(session: Session, payload: CreateResource):
+    vehicle = Vehicle(
+        id=payload.vehicle_id,
+        battery_capacity=payload.battery_capacity,
+        max_charging_power=payload.max_charging_power,
+    )
+    charge_point = ChargePoint(id=payload.charge_point_id)
+    charging_session = ChargingSession(id=payload.charging_session_id)
+    session.add(charge_point)
+    session.add(charging_session)
+    session.add(vehicle)
+
+    session.commit()
+
+    return payload

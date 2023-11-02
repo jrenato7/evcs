@@ -11,6 +11,14 @@ class Message(BaseModel):
     detail: str
 
 
+class CreateResource(BaseModel):
+    vehicle_id: UUID
+    charge_point_id: UUID
+    charging_session_id: UUID
+    battery_capacity: float
+    max_charging_power: float
+
+
 class ChargingStatusInput(BaseModel):
     vehicle_id: UUID
     charge_point_id: UUID
