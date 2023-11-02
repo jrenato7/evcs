@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - 8080:8000
+    command: uvicorn evcs.app:app --host 0.0.0.0 --reload
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - database
+      - redis
+  database:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=evcs
+      - POSTGRES_USER=evcs_user
+      - POSTGRES_PASSWORD=myPass82938evcs
+    ports:
+      - 5439:5432
+  redis:
+    container_name: redis
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+  worker:
+    build: .
+    command: celery -A evcs.worker.celery worker --loglevel=info
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - api
+      - redis
+volumes:
+  postgres_data:
