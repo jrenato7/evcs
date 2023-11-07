@@ -5,7 +5,7 @@ services:
     build: .
     ports:
       - 8080:8000
-    command: uvicorn evcs.app:app --host 0.0.0.0 --reload
+    command: uvicorn main:app --host 0.0.0.0 --reload
     volumes:
       - .:/usr/src/app
     environment:
@@ -32,7 +32,7 @@ services:
       - 6379:6379
   worker:
     build: .
-    command: celery -A evcs.worker.celery worker --loglevel=info
+    command: celery -A main.celery worker --loglevel=info
     volumes:
       - .:/usr/src/app
     environment:
